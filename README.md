@@ -1,10 +1,11 @@
-# book api created by using express
+# bookapp api in express
 
-## To run
+### To run
 
 ```
+nvm use
 npm i
-npm run dev
+npm start
 ```
 
 1. GET /books
@@ -36,17 +37,21 @@ Request:
 {
 title: '',
 isbn: '', // validation
-} 3. POST /books/:bookid/rating
-{
-rating: 0 and 5,
-} 4. GET /books/:bookid
-{
-id: 216,
-title: '',
-isbn: '', // validation
-rating: 4,
 }
-return 0 if no rating is set for a book
+
+3. POST /books/:bookid/rating
+   {
+   rating: 0 and 5,
+   }
+
+4. GET /books/:bookid
+   {
+   id: 216,
+   title: '',
+   isbn: '', // validation
+   rating: 4,
+   }
+   return 0 if no rating is set for a book
 
 5. PUT /books/:bookid
    {
@@ -73,31 +78,3 @@ return 0 if no rating is set for a book
    }
    }
 9. DEL /rating/:ratingid
-
-const { v4: uuidv4 } = require("uuid");
-
-// const users = [
-// {
-// id: 100,
-// name: "Ram",
-// },
-// ];
-
-const books = [
-{
-id: 1234,
-title: "wings of fire",
-year: 2000,
-},
-];
-
-const booksRatings = [
-{
-id: 200,
-ratings: 4,
-bookId: 1234,
-// userId: 100,
-},
-];
-
-const getAllMovies = () => books.booksDetails.id;

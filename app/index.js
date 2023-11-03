@@ -29,6 +29,8 @@ const { v4: uuidv4 } = require("uuid");
 const Joi = require("joi");
 
 let books = [];
+let booksRating = [];
+const bookid = uuidv4();
 
 // get
 app.get("/books", (req, res) => {
@@ -36,31 +38,39 @@ app.get("/books", (req, res) => {
     books,
   });
 });
-app.get("/books/:id", (request, response) => {
-  const accountId = Number(request.params.id);
+//get all books rating
+app.get("/books/rating", (req, res) => {
+  return res.json({
+    booksRating,
+  });
+});
+
+// get particular id
+app.get("/books/:id", (req, res) => {
+  const accountId = String(req.params.id);
   const getAccount = books.find((account) => account.id === accountId);
   console.log(accountId);
 
   if (!getAccount) {
-    response.status(500).send("books not found.");
+    res.status(500).send("books not found.");
   } else {
-    response.json(getAccount);
+    const mergedArray = books.map((item) => {
+      const matchedObject = booksRating.find((obj) => obj.id === item.id);
+      return { ...item, ...matchedObject };
+    });
+
+    console.log(mergedArray);
+    res.json(mergedArray);
   }
 });
 
-// add
-
-////
-app.post("/books", (req, res, next) => {
+app.post("/books", (req, res) => {
   const id = uuidv4();
 
   function isValidISBN(isbn) {
-    // length must be 10
     let n = isbn.length;
     if (n != 10) return false;
 
-    // Computing weighted sum of
-    // first 9 digits
     let sum = 0;
     for (let i = 0; i < 9; i++) {
       let digit = isbn[i] - "0";
@@ -70,20 +80,15 @@ app.post("/books", (req, res, next) => {
       sum += digit * (10 - i);
     }
 
-    // Checking last digit.
     let last = isbn[9];
     if (last != "X" && (last < "0" || last > "9")) return false;
 
-    // If last digit is 'X', add 10
-    // to sum, else add its value.
     sum += last == "X" ? 10 : last - "0";
 
-    // Return true if weighted sum
-    // of digits is divisible by 11.
     return sum % 11 == 0;
   }
   let jj = {
-    id: id,
+    id: bookid,
     title: req.body.title,
     isbn: req.body.isbn,
   };
@@ -98,6 +103,35 @@ app.post("/books", (req, res, next) => {
   } else {
     return res.json({
       message: "error",
+    });
+  }
+});
+
+// add rating
+app.post("/books/:id/rating", (req, res) => {
+  let kk = {
+    id: bookid,
+    rating: req.body.rating,
+  };
+  function validateUser(kk) {
+    const JoiSchema = Joi.object({
+      rating: Joi.number().required().min(0).max(5),
+      id: Joi.optional(),
+    });
+
+    return JoiSchema.validate(kk);
+  }
+
+  response = validateUser(kk);
+
+  if (response.error) {
+    return res.json({
+      message: "error",
+    });
+  } else {
+    booksRating.push(kk);
+    return res.json({
+      message: "rating add",
     });
   }
 });
@@ -118,19 +152,6 @@ app.put("/books/:id", (request, response) => {
     books[index] = updatedAccount;
 
     response.send(updatedAccount);
-  }
-});
-
-// DELETE
-app.delete("/books/:id", (request, response) => {
-  const accountId = Number(request.params.id);
-  let newbooks = books.filter((account) => account.id != accountId);
-
-  if (!newbooks) {
-    response.status(500).send("Account not found.");
-  } else {
-    books = newbooks;
-    response.send(books);
   }
 });
 

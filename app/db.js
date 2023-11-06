@@ -120,6 +120,41 @@ const deleteRatingById = (id) => {
   booksRatings.splice(idx, 1);
   return deletedRating;
 };
+// pagination
+
+const paginatedResults = (modal, req, res) => {
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  const results = {};
+  if (endIndex < modal.length) {
+    results.next = {
+      page: page + 1,
+      limit: limit,
+    };
+  }
+
+  if (startIndex > 0) {
+    results.previous = {
+      page: page - 1,
+      limit: limit,
+    };
+  }
+
+  results.results = modal.slice(startIndex, endIndex);
+
+  res.paginatedResults = results;
+};
+
+const page = () => {
+  paginatedResults(books),
+    (req, res) => {
+      res.json(res.paginatedResults);
+    };
+};
 module.exports = {
   getAllBooks,
   addBook,
@@ -130,4 +165,6 @@ module.exports = {
   updateRating,
   getRatingById,
   deleteRatingById,
+  paginatedResults,
+  page,
 };

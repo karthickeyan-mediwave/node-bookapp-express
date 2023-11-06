@@ -4,7 +4,7 @@ const { isValidISBN } = require("../app/middlewares/validate.middleware");
 const books = [
   {
     id: "1234",
-    title: "wings of fire",
+    title: "dhoom 2",
     isbn: "007462542X",
   },
 ];
@@ -90,8 +90,8 @@ const deleteBookById = (id) => {
   return b;
 };
 
-const updateRating = ({ rating, bookId }) => {
-  const idx = booksRatings.findIndex((b) => b.bookId == bookId);
+const updateRating = ({ rating, bookid }) => {
+  const idx = booksRatings.findIndex((b) => b.bookid == bookid);
   if (idx != -1) {
     booksRatings[idx]["rating"] = rating;
     return booksRatings[idx];
@@ -104,7 +104,7 @@ const getRatingById = (id) => {
   if (!rating) {
     return null;
   }
-  const book = books.find((b) => b.id == rating.bookId);
+  const book = books.find((b) => b.id == rating.bookid);
   return {
     id: rating.id,
     rating: rating.rating,

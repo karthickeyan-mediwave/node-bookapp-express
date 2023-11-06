@@ -15,6 +15,8 @@ const {
   updateRating,
   getRatingById,
   deleteRatingById,
+  paginatedResults,
+  page,
 } = require("./db");
 const Joi = require("joi");
 
@@ -146,6 +148,13 @@ app.delete("/rating/:ratingid", (req, res) => {
     });
   }
   return res.json(rating);
+});
+
+// pagination
+
+app.get("/books/paginate", (req, res) => {
+  let page = page();
+  res.json(page);
 });
 app.listen(config.appPort, () => {
   console.log(`Server running on ${config.appPort}`);

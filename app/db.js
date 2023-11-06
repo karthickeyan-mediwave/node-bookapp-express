@@ -1,71 +1,133 @@
 const { v4: uuidv4 } = require("uuid");
+const { isValidISBN } = require("../app/middlewares/validate.middleware");
 
-const books = [];
+const books = [
+  {
+    id: "1234",
+    title: "wings of fire",
+    isbn: "007462542X",
+  },
+];
 
-const booksRating = [];
+const booksRatings = [
+  {
+    id: "200",
+    rating: 3,
+    bookid: "1234",
+  },
+];
 
-const getAllbooks = () => books;
-const getAllbooksRating = () => booksRating;
+const getAllBooks = () => books;
+const addBook = ({ title, isbn }) => {
+  if (isValidISBN(isbn)) {
+    const id = uuidv4();
+    const b = {
+      id,
+      title,
+      isbn,
+    };
+    books.push(b);
+    return b;
+  } else console.log("Invalid");
+};
 
-// add book rating
+const addRating = ({ rating, bookid }) => {
+  const ratingId = uuidv4();
 
-const addbookRating = ({ rating }) => {
-  const id = uuidv4();
-  const b = {
-    id,
+  const bookRating = {
+    id: ratingId,
     rating,
+    bookid,
   };
-  booksRating.push(b);
+  booksRatings.push(bookRating);
+  return bookRating;
+};
+
+const getBookById = (id) => {
+  const book = books.find((b) => b.id == id);
+
+  if (!book) {
+    return null;
+  }
+
+  const ratingEntry = booksRatings.find((b) => b.bookid == id);
+
+  const rating = ratingEntry ? ratingEntry.rating : 0;
+
+  b = {
+    id: book.id,
+    title: book.title,
+    isbn: book.isbn,
+    rating: rating,
+  };
   return b;
 };
 
-const addbook = ({ title, year }) => {
-  const id = uuidv4();
-  const m = {
-    id,
-    title,
-    year,
-  };
-  books.push(m);
-  return m;
+const editBookById = ({ id, title }) => {
+  const idx = books.findIndex((b) => b.id == id);
+  if (idx != -1) {
+    books[idx]["title"] = title;
+    return books[idx];
+  }
+  return null;
 };
-const getbyidbook = ({ id }) => {
-  const idx = books.findIndex((m) => m.id == id);
-  if (idx === -1) {
+const deleteBookById = (id) => {
+  const idx = books.findIndex((b) => b.id == id);
+  const ratingidx = booksRatings.findIndex((b) => b.bookId == id);
+  if (idx == -1) {
     return null;
   }
-  return books[idx];
-};
-
-const updatebook = ({ id, payload }) => {
-  const idx = books.findIndex((m) => m.id == id);
-  if (idx === -1) {
-    return null;
-  }
-
-  books[idx]["title"] = payload["title"];
-  books[idx]["year"] = payload["year"];
-
-  return books[idx];
-};
-
-const deletebook = ({ id }) => {
-  const idx = books.findIndex((m) => m.id == id);
-  if (idx === -1) {
-    return null;
-  }
-
-  const book = books[idx];
+  const b = books[idx];
   books.splice(idx, 1);
-  return book;
+  if (ratingidx !== -1) {
+    const r = booksRatings[ratingidx];
+    booksRatings.splice(ratingidx, 1);
+    return {
+      b,
+      r,
+    };
+  }
+  return b;
 };
 
+const updateRating = ({ rating, bookId }) => {
+  const idx = booksRatings.findIndex((b) => b.bookId == bookId);
+  if (idx != -1) {
+    booksRatings[idx]["rating"] = rating;
+    return booksRatings[idx];
+  }
+  return null;
+};
+
+const getRatingById = (id) => {
+  const rating = booksRatings.find((r) => r.id == id);
+  if (!rating) {
+    return null;
+  }
+  const book = books.find((b) => b.id == rating.bookId);
+  return {
+    id: rating.id,
+    rating: rating.rating,
+    book,
+  };
+};
+const deleteRatingById = (id) => {
+  const idx = booksRatings.findIndex((r) => r.id == id);
+  if (idx == -1) {
+    return null;
+  }
+  const deletedRating = booksRatings[idx];
+  booksRatings.splice(idx, 1);
+  return deletedRating;
+};
 module.exports = {
-  getAllbooks,
-  addbook,
-  updatebook,
-  deletebook,
-  getbyidbook,
-  getAllbooksRating,
-  addbookRating,
+  getAllBooks,
+  addBook,
+  addRating,
+  getBookById,
+  editBookById,
+  deleteBookById,
+  updateRating,
+  getRatingById,
+  deleteRatingById,
 };

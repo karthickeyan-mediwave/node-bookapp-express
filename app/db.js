@@ -154,14 +154,13 @@ function paginatedResults(model) {
 }
 // search
 
-// function searchtitle(req, res) {
-//   const search = req.query.search;
-
-//   let filtered = books.filter((t) => String(t.title).includes(search));
-//   const results = filtered;
-//   res.search = results;
-//   console.log(results);
-// }
+function filteredtitle(searchText) {
+  const searchTextLow = searchText.toLowerCase();
+  const result = books.filter((m) =>
+    m.title.toLowerCase().includes(searchTextLow)
+  );
+  return result.filter((res) => res.title);
+}
 
 module.exports = {
   getAllBooks,
@@ -174,5 +173,5 @@ module.exports = {
   getRatingById,
   deleteRatingById,
   paginatedResults,
-  // searchtitle,
+  filteredtitle,
 };

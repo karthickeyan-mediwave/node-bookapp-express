@@ -17,7 +17,7 @@ const {
   getRatingById,
   deleteRatingById,
   paginatedResults,
-  // searchtitle,
+  filteredtitle,
 } = require("./db");
 const Joi = require("joi");
 
@@ -155,35 +155,12 @@ const books = getAllBooks();
 app.get("/book/paginate", paginatedResults(books), (req, res) => {
   res.json(res.paginatedResults);
 });
-// // search books
-// app.get("/book", (req, res) => {
-//   let search = req.query.search;
-//   const book = gettitle(search);
-//   return res.json(book);
-// });
-// const gettitle = (search) => {
-//   // const book = books.find((r) => r.title == title);
-//   let book = books.filter((t) => String(t.title).includes(search));
-
-//   if (!book) {
-//     return null;
-//   }
-//   return {
-//     book: book.title,
-//   };
-// };
+// search
 app.get("/book", (req, res) => {
   let search = req.query.search;
   const book = filteredtitle(search);
   return res.json(book);
 });
-function filteredtitle(searchText) {
-  const searchTextLow = searchText.toLowerCase();
-  const result = books.filter((m) =>
-    m.title.toLowerCase().includes(searchTextLow)
-  );
-  return result.filter((res) => res.title);
-}
 
 app.listen(config.appPort, () => {
   console.log(`Server running on ${config.appPort}`);

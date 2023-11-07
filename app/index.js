@@ -2,7 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const config = require("./config");
-const { addbookSchema } = require("./validations/books.schema");
+const { addbookSchema, RatingSchema } = require("./validations/books.schema");
 
 const express = require("express");
 const morgan = require("morgan");
@@ -17,6 +17,7 @@ const {
   getRatingById,
   deleteRatingById,
   paginatedResults,
+  // searchtitle,
 } = require("./db");
 const Joi = require("joi");
 
@@ -45,11 +46,7 @@ app.post("/books", (req, res) => {
 
 /// add rating
 app.post("/books/:bookid/rating", (req, res) => {
-  const ratingSchema = Joi.object({
-    rating: Joi.number().min(0).max(5).required(),
-  });
-
-  const { value, error } = ratingSchema.validate(req.body);
+  const { value, error } = RatingSchema.validate(req.body);
   if (error) {
     return res.status(400).json({
       message: error.details.map((d) => d.message),
@@ -158,6 +155,35 @@ const books = getAllBooks();
 app.get("/book/paginate", paginatedResults(books), (req, res) => {
   res.json(res.paginatedResults);
 });
+// // search books
+// app.get("/book", (req, res) => {
+//   let search = req.query.search;
+//   const book = gettitle(search);
+//   return res.json(book);
+// });
+// const gettitle = (search) => {
+//   // const book = books.find((r) => r.title == title);
+//   let book = books.filter((t) => String(t.title).includes(search));
+
+//   if (!book) {
+//     return null;
+//   }
+//   return {
+//     book: book.title,
+//   };
+// };
+app.get("/book", (req, res) => {
+  let search = req.query.search;
+  const book = filteredtitle(search);
+  return res.json(book);
+});
+function filteredtitle(searchText) {
+  const searchTextLow = searchText.toLowerCase();
+  const result = books.filter((m) =>
+    m.title.toLowerCase().includes(searchTextLow)
+  );
+  return result.filter((res) => res.title);
+}
 
 app.listen(config.appPort, () => {
   console.log(`Server running on ${config.appPort}`);

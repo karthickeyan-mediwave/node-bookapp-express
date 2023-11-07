@@ -9,7 +9,7 @@ const addbookSchema = Joi.object({
   isbn: Joi.string().required().pattern(patterns.isbnvalidate),
 });
 const RatingSchema = Joi.object({
-  rating: Joi.number().required(),
+  rating: Joi.number().min(0).max(5).required(),
 });
 
 module.exports = {

@@ -4,8 +4,8 @@ const { isValidISBN } = require("../app/middlewares/validate.middleware");
 const books = [
   {
     id: "12345678",
-    title: "dhoom 2",
-    isbn: "007462542X",
+    title: "dhoom",
+    isbn: 0o545010225,
   },
 ];
 
@@ -152,6 +152,16 @@ function paginatedResults(model) {
     next();
   };
 }
+// search
+
+// function searchtitle(req, res) {
+//   const search = req.query.search;
+
+//   let filtered = books.filter((t) => String(t.title).includes(search));
+//   const results = filtered;
+//   res.search = results;
+//   console.log(results);
+// }
 
 module.exports = {
   getAllBooks,
@@ -164,4 +174,5 @@ module.exports = {
   getRatingById,
   deleteRatingById,
   paginatedResults,
+  // searchtitle,
 };

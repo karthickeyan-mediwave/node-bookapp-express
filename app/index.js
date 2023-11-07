@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const config = require("./config");
+const { addbookSchema } = require("./validations/books.schema");
 
 const express = require("express");
 const morgan = require("morgan");
@@ -16,7 +17,6 @@ const {
   getRatingById,
   deleteRatingById,
   paginatedResults,
-  page,
 } = require("./db");
 const Joi = require("joi");
 
@@ -24,18 +24,16 @@ const app = express();
 
 app.use(express.json());
 app.use(morgan("dev"));
+
 // get books
 app.get("/books", (req, res) => {
   const books = getAllBooks();
   res.send(books);
 });
+
 // add books
 app.post("/books", (req, res) => {
-  const AddbookSchema = Joi.object({
-    title: Joi.string().required(),
-    isbn: Joi.string().required(),
-  });
-  const { value, error } = AddbookSchema.validate(req.body);
+  const { value, error } = addbookSchema.validate(req.body);
   if (error) {
     return res.status(400).json({
       message: error.details.map((d) => d.message),
@@ -44,6 +42,7 @@ app.post("/books", (req, res) => {
   const book = addBook(value);
   return res.send(book);
 });
+
 /// add rating
 app.post("/books/:bookid/rating", (req, res) => {
   const ratingSchema = Joi.object({
@@ -63,6 +62,7 @@ app.post("/books/:bookid/rating", (req, res) => {
   });
   return res.json(rating);
 });
+
 // get rating by id
 app.get("/books/:bookid", (req, res) => {
   const book = getBookById(req.params.bookid);
@@ -93,6 +93,7 @@ app.put("/books/:bookid", (req, res) => {
   }
   return res.send(book);
 });
+
 // delete book
 app.delete("/books/:bookid", (req, res) => {
   const b = deleteBookById(req.params.bookid);
@@ -139,6 +140,7 @@ app.get("/rating/:ratingid", (req, res) => {
   }
   return res.send(book);
 });
+
 // delete rating
 app.delete("/rating/:ratingid", (req, res) => {
   const rating = deleteRatingById(req.params.ratingid);
@@ -151,11 +153,12 @@ app.delete("/rating/:ratingid", (req, res) => {
 });
 
 // pagination
+const books = getAllBooks();
 
-app.get("/books/paginate", (req, res) => {
-  let page = page();
-  res.json(page);
+app.get("/book/paginate", paginatedResults(books), (req, res) => {
+  res.json(res.paginatedResults);
 });
+
 app.listen(config.appPort, () => {
   console.log(`Server running on ${config.appPort}`);
 });

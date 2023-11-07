@@ -1,14 +1,18 @@
 const Joi = require("joi");
 
-const bookSchema = Joi.object({
+const patterns = {
+  isbnvalidate: /^(?=(?:[^0-9]*[0-9]){10}?$)[\d-]+$/,
+};
+
+const addbookSchema = Joi.object({
   title: Joi.string().required(),
-  year: Joi.number().required(),
+  isbn: Joi.string().required().pattern(patterns.isbnvalidate),
 });
-const bookRatingSchema = Joi.object({
+const RatingSchema = Joi.object({
   rating: Joi.number().required(),
 });
 
 module.exports = {
-  bookSchema,
-  bookRatingSchema,
+  addbookSchema,
+  RatingSchema,
 };

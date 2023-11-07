@@ -3,7 +3,7 @@ const { isValidISBN } = require("../app/middlewares/validate.middleware");
 
 const books = [
   {
-    id: "1234",
+    id: "12345678",
     title: "dhoom 2",
     isbn: "007462542X",
   },
@@ -13,24 +13,24 @@ const booksRatings = [
   {
     id: "200",
     rating: 3,
-    bookid: "1234",
+    bookid: "12345678",
   },
 ];
-
+// get book
 const getAllBooks = () => books;
+// add book
 const addBook = ({ title, isbn }) => {
-  if (isValidISBN(isbn)) {
-    const id = uuidv4();
-    const b = {
-      id,
-      title,
-      isbn,
-    };
-    books.push(b);
-    return b;
-  } else console.log("Invalid");
-};
+  const id = uuidv4();
 
+  const b = {
+    id,
+    title,
+    isbn,
+  };
+  books.push(b);
+  return b;
+};
+// add rating
 const addRating = ({ rating, bookid }) => {
   const ratingId = uuidv4();
 
@@ -42,7 +42,7 @@ const addRating = ({ rating, bookid }) => {
   booksRatings.push(bookRating);
   return bookRating;
 };
-
+// get book by id
 const getBookById = (id) => {
   const book = books.find((b) => b.id == id);
 
@@ -62,7 +62,7 @@ const getBookById = (id) => {
   };
   return b;
 };
-
+// edit book title
 const editBookById = ({ id, title }) => {
   const idx = books.findIndex((b) => b.id == id);
   if (idx != -1) {
@@ -71,6 +71,7 @@ const editBookById = ({ id, title }) => {
   }
   return null;
 };
+// delete book
 const deleteBookById = (id) => {
   const idx = books.findIndex((b) => b.id == id);
   const ratingidx = booksRatings.findIndex((b) => b.bookId == id);
@@ -89,7 +90,7 @@ const deleteBookById = (id) => {
   }
   return b;
 };
-
+// update rating
 const updateRating = ({ rating, bookid }) => {
   const idx = booksRatings.findIndex((b) => b.bookid == bookid);
   if (idx != -1) {
@@ -98,7 +99,7 @@ const updateRating = ({ rating, bookid }) => {
   }
   return null;
 };
-
+// get rating by id
 const getRatingById = (id) => {
   const rating = booksRatings.find((r) => r.id == id);
   if (!rating) {
@@ -111,6 +112,7 @@ const getRatingById = (id) => {
     book,
   };
 };
+// delete rating by id
 const deleteRatingById = (id) => {
   const idx = booksRatings.findIndex((r) => r.id == id);
   if (idx == -1) {
@@ -121,40 +123,36 @@ const deleteRatingById = (id) => {
   return deletedRating;
 };
 // pagination
+function paginatedResults(model) {
+  return (req, res, next) => {
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
 
-const paginatedResults = (modal, req, res) => {
-  const page = parseInt(req.query.page);
-  const limit = parseInt(req.query.limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
 
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
+    const results = {};
+    if (endIndex < model.length) {
+      results.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
 
-  const results = {};
-  if (endIndex < modal.length) {
-    results.next = {
-      page: page + 1,
-      limit: limit,
-    };
-  }
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
 
-  if (startIndex > 0) {
-    results.previous = {
-      page: page - 1,
-      limit: limit,
-    };
-  }
+    results.results = model.slice(startIndex, endIndex);
 
-  results.results = modal.slice(startIndex, endIndex);
+    res.paginatedResults = results;
+    next();
+  };
+}
 
-  res.paginatedResults = results;
-};
-
-const page = () => {
-  paginatedResults(books),
-    (req, res) => {
-      res.json(res.paginatedResults);
-    };
-};
 module.exports = {
   getAllBooks,
   addBook,
@@ -166,5 +164,4 @@ module.exports = {
   getRatingById,
   deleteRatingById,
   paginatedResults,
-  page,
 };
